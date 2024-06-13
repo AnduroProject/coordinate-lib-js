@@ -1,5 +1,4 @@
 # coordinatejs (coordinatejs-lib)
-[![Github CI](https://github.com/AnduroProject/coordinate-lib-js/actions/workflows/main_ci.yml/badge.svg)](https://github.com/AnduroProject/coordinate-lib-js/actions/workflows/main_ci.yml) [![NPM](https://img.shields.io/npm/v/coordinatejs-lib.svg)](https://www.npmjs.org/package/coordinatejs-lib) [![code style: prettier](https://img.shields.io/badge/code_style-prettier-ff69b4.svg?style=flat-square)](https://github.com/prettier/prettier)
 
 A javascript Coordinate library for node.js and browsers. Written in TypeScript, but committing the JS files to verify.
 
