@@ -140,17 +140,61 @@ export class Psbt {
   set version(version) {
     this.setVersion(version);
   }
+
+   get assettype() {
+    return this.__CACHE.__TX.assettype;
+  }
+  set assettype(assettype) {
+    this.setAssetType(assettype);
+  }
+  get precision() {
+    return this.__CACHE.__TX.precision;
+  }
+  set precision(precision) {
+    this.setPrecisionType(precision);
+  }
+
   get locktime() {
     return this.__CACHE.__TX.locktime;
   }
   set locktime(locktime) {
     this.setLocktime(locktime);
   }
+
+    get ticker() {
+    return this.__CACHE.__TX.ticker;
+  }
+  set ticker(ticker) {
+    this.setTicker(ticker);
+  }
+
+  get headline() {
+    return this.__CACHE.__TX.headline;
+  }
+  set headline(headline) {
+    this.setHeadline(headline);
+  }
+
+  get payload() {
+    return this.__CACHE.__TX.payload;
+  }
+  set payload(payload) {
+    this.setPayload(payload);
+  }
+
+  get payloaddata() {
+    return this.__CACHE.__TX.payloaddata;
+  }
+  set payloaddata(payloaddata) {
+    this.setPayloadData(payloaddata);
+  }
+
   get txInputs() {
     return this.__CACHE.__TX.ins.map(input => ({
       hash: cloneBuffer(input.hash),
       index: input.index,
       sequence: input.sequence,
+      assetId: input.assetId
     }));
   }
   get txOutputs() {
@@ -180,6 +224,7 @@ export class Psbt {
     check32Bit(satoshiPerByte); // 42.9 BTC per byte IS excessive... so throw
     this.opts.maximumFeeRate = satoshiPerByte;
   }
+
   setVersion(version) {
     check32Bit(version);
     checkInputsForPartialSig(this.data.inputs, 'setVersion');
@@ -188,6 +233,53 @@ export class Psbt {
     c.__EXTRACTED_TX = undefined;
     return this;
   }
+
+  setAssetType(assettype) {
+    check32Bit(assettype);
+    const c = this.__CACHE;
+    c.__TX.assettype = assettype;
+    c.__EXTRACTED_TX = undefined;
+    return this;
+  }
+
+  setPrecisionType(precision) {
+    check32Bit(precision);
+    const c = this.__CACHE;
+    c.__TX.precision = precision;
+    c.__EXTRACTED_TX = undefined;
+    return this;
+  }
+
+
+  setTicker(ticker) {
+    const c = this.__CACHE;
+    c.__TX.ticker = Buffer.from(ticker,"hex");
+    c.__EXTRACTED_TX = undefined;
+    return this;
+  }
+
+  setHeadline(headline) {
+    const c = this.__CACHE;
+    c.__TX.headline = Buffer.from(headline,"hex");
+    c.__EXTRACTED_TX = undefined;
+    return this;
+  }
+
+  setPayload(payload) {
+    const c = this.__CACHE;
+    c.__TX.payload = Buffer.from(payload,"hex");
+    c.__EXTRACTED_TX = undefined;
+    return this;
+  }
+
+  setPayloadData(payloaddata) {
+    const c = this.__CACHE;
+    c.__TX.payloaddata = Buffer.from(payloaddata,"hex");
+    c.__EXTRACTED_TX = undefined;
+    return this;
+  }
+
+
   setLocktime(locktime) {
     check32Bit(locktime);
     checkInputsForPartialSig(this.data.inputs, 'setLocktime');
@@ -950,7 +1042,7 @@ class PsbtTransaction {
       typeof input.hash === 'string'
         ? reverseBuffer(tools.fromHex(input.hash))
         : input.hash;
-    this.tx.addInput(hash, input.index, input.sequence);
+    this.tx.addInput(hash, input.index, input.assetId, input.sequence);
   }
   addOutput(output) {
     if (

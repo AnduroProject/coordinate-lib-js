@@ -5,6 +5,7 @@ export interface Output {
 export interface Input {
     hash: Uint8Array;
     index: number;
+    assetId: Buffer
     script: Uint8Array;
     sequence: number;
     witness: Uint8Array[];
@@ -27,11 +28,17 @@ export declare class Transaction {
     static fromHex(hex: string): Transaction;
     static isCoinbaseHash(buffer: Uint8Array): boolean;
     version: number;
+    assettype: number;
+    precision: number;
+    ticker: Buffer;
+    headline: Buffer;
+    payload: Buffer;
+    payloaddata: Buffer;
     locktime: number;
     ins: Input[];
     outs: Output[];
     isCoinbase(): boolean;
-    addInput(hash: Uint8Array, index: number, sequence?: number, scriptSig?: Uint8Array): number;
+    addInput(hash: Uint8Array, index: number, assetId: Buffer, sequence?: number, scriptSig?: Uint8Array): number;
     addOutput(scriptPubKey: Uint8Array, value: bigint): number;
     hasWitnesses(): boolean;
     stripWitnesses(): void;

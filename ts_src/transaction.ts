@@ -55,6 +55,7 @@ export interface Output {
 export interface Input {
   hash: Uint8Array;
   index: number;
+  assetId: Buffer;
   script: Uint8Array;
   sequence: number;
   witness: Uint8Array[];
@@ -81,6 +82,16 @@ export class Transaction {
     const tx = new Transaction();
     tx.version = bufferReader.readUInt32();
 
+    if(tx.version == 10) {
+      tx.assettype = bufferReader.readInt32();
+      tx.precision = bufferReader.readInt32();
+      tx.ticker = bufferReader.readVarSlice();
+      tx.headline = bufferReader.readVarSlice();
+      tx.payload = bufferReader.readSlice(32);
+      tx.payloaddata = bufferReader.readVarSlice();
+    }
+
+
     const marker = bufferReader.readUInt8();
     const flag = bufferReader.readUInt8();
 
@@ -99,6 +110,7 @@ export class Transaction {
       tx.ins.push({
         hash: bufferReader.readSlice(32),
         index: bufferReader.readUInt32(),
+        assetId: bufferReader.readVarSlice(),
         script: bufferReader.readVarSlice(),
         sequence: bufferReader.readUInt32(),
         witness: EMPTY_WITNESS,
@@ -145,6 +157,12 @@ export class Transaction {
   }
 
   version: number = 1;
+  assettype: number = 0;
+  precision: number = 8;
+  ticker: Buffer;
+  headline: Buffer;
+  payload: Buffer;
+  payloaddata: Buffer;
   locktime: number = 0;
   ins: Input[] = [];
   outs: Output[] = [];
@@ -158,6 +176,7 @@ export class Transaction {
   addInput(
     hash: Uint8Array,
     index: number,
+    assetId: Buffer,
     sequence?: number,
     scriptSig?: Uint8Array,
   ): number {
@@ -165,10 +184,11 @@ export class Transaction {
       v.tuple([
         types.Hash256bitSchema,
         types.UInt32Schema,
+        types.BufferSchema,
         v.nullable(v.optional(types.UInt32Schema)),
         v.nullable(v.optional(types.BufferSchema)),
       ]),
-      [hash, index, sequence, scriptSig],
+      [hash, index, assetId, sequence, scriptSig],
     );
 
     if (sequence === undefined || sequence === null) {
@@ -180,6 +200,7 @@ export class Transaction {
       this.ins.push({
         hash,
         index,
+        assetId,
         script: scriptSig || EMPTY_BUFFER,
         sequence: sequence as number,
         witness: EMPTY_WITNESS,
@@ -226,13 +247,13 @@ export class Transaction {
 
   byteLength(_ALLOW_WITNESS: boolean = true): number {
     const hasWitnesses = _ALLOW_WITNESS && this.hasWitnesses();
-
+    const assetSize = this.version == 10 ? (8 + varSliceSize(this.ticker) + varSliceSize(this.headline) + 32 + varSliceSize(this.payloaddata)) : 0
     return (
-      (hasWitnesses ? 10 : 8) +
+      (hasWitnesses ? 10 : 8) + assetSize +
       varuint.encodingLength(this.ins.length) +
       varuint.encodingLength(this.outs.length) +
       this.ins.reduce((sum, input) => {
-        return sum + 40 + varSliceSize(input.script);
+        return sum + 40 + varSliceSize(input.script) + varSliceSize(input.assetId);
       }, 0) +
       this.outs.reduce((sum, output) => {
         return sum + 8 + varSliceSize(output.script);
@@ -248,12 +269,19 @@ export class Transaction {
   clone(): Transaction {
     const newTx = new Transaction();
     newTx.version = this.version;
+    newTx.assettype = this.assettype;
+    newTx.precision = this.precision;
+    newTx.ticker = this.ticker;
+    newTx.headline = this.headline;
+    newTx.payload = this.payload;
+    newTx.payloaddata = this.payloaddata;
     newTx.locktime = this.locktime;
 
     newTx.ins = this.ins.map(txIn => {
       return {
         hash: txIn.hash,
         index: txIn.index,
+        assetId: txIn.assetId,
         script: txIn.script,
         sequence: txIn.sequence,
         witness: txIn.witness,

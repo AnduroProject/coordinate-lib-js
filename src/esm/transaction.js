@@ -58,6 +58,16 @@ export class Transaction {
     const bufferReader = new BufferReader(buffer);
     const tx = new Transaction();
     tx.version = bufferReader.readUInt32();
+
+    if(tx.version == 10) {
+      tx.assettype = bufferReader.readInt32();
+      tx.precision = bufferReader.readInt32();
+      tx.ticker = bufferReader.readVarSlice();
+      tx.headline = bufferReader.readVarSlice();
+      tx.payload = bufferReader.readSlice(32);
+      tx.payloaddata = bufferReader.readVarSlice();
+    }
+
     const marker = bufferReader.readUInt8();
     const flag = bufferReader.readUInt8();
     let hasWitnesses = false;
@@ -74,6 +84,7 @@ export class Transaction {
       tx.ins.push({
         hash: bufferReader.readSlice(32),
         index: bufferReader.readUInt32(),
+        assetId: bufferReader.readVarSlice(),
         script: bufferReader.readVarSlice(),
         sequence: bufferReader.readUInt32(),
         witness: EMPTY_WITNESS,
@@ -119,11 +130,12 @@ export class Transaction {
       this.ins.length === 1 && Transaction.isCoinbaseHash(this.ins[0].hash)
     );
   }
-  addInput(hash, index, sequence, scriptSig) {
+  addInput(hash, index, assetId, sequence, scriptSig) {
     v.parse(
       v.tuple([
         types.Hash256bitSchema,
         types.UInt32Schema,
+        v.nullable(v.optional(types.BufferSchema)),
         v.nullable(v.optional(types.UInt32Schema)),
         v.nullable(v.optional(types.BufferSchema)),
       ]),
@@ -137,6 +149,7 @@ export class Transaction {
       this.ins.push({
         hash,
         index,
+        assetId,
         script: scriptSig || EMPTY_BUFFER,
         sequence: sequence,
         witness: EMPTY_WITNESS,
@@ -176,12 +189,13 @@ export class Transaction {
   }
   byteLength(_ALLOW_WITNESS = true) {
     const hasWitnesses = _ALLOW_WITNESS && this.hasWitnesses();
+    const assetSize = this.version == 10 ? (8 + varSliceSize(this.ticker) + varSliceSize(this.headline) + 32 + varSliceSize(this.payloaddata)) : 0
     return (
-      (hasWitnesses ? 10 : 8) +
+      (hasWitnesses ? 10 : 8) + assetSize +
       varuint.encodingLength(this.ins.length) +
       varuint.encodingLength(this.outs.length) +
       this.ins.reduce((sum, input) => {
-        return sum + 40 + varSliceSize(input.script);
+        return sum + 40 + varSliceSize(input.script) + varSliceSize(input.assetId);
       }, 0) +
       this.outs.reduce((sum, output) => {
         return sum + 8 + varSliceSize(output.script);
@@ -196,11 +210,18 @@ export class Transaction {
   clone() {
     const newTx = new Transaction();
     newTx.version = this.version;
+    newTx.assettype = this.assettype;
+    newTx.precision = this.precision;
+    newTx.ticker = this.ticker;
+    newTx.headline = this.headline;
+    newTx.payload = this.payload;
+    newTx.payloaddata = this.payloaddata;
     newTx.locktime = this.locktime;
     newTx.ins = this.ins.map(txIn => {
       return {
         hash: txIn.hash,
         index: txIn.index,
+        assetId: txIn.assetId,
         script: txIn.script,
         sequence: txIn.sequence,
         witness: txIn.witness,
@@ -314,6 +335,7 @@ export class Transaction {
       this.ins.forEach(txIn => {
         bufferWriter.writeSlice(txIn.hash);
         bufferWriter.writeUInt32(txIn.index);
+        bufferWriter.writeSlice(txIn.assetId);
       });
       hashPrevouts = sha256(bufferWriter.end());
       bufferWriter = BufferWriter.withCapacity(8 * this.ins.length);
@@ -380,6 +402,7 @@ export class Transaction {
       const input = this.ins[inIndex];
       sigMsgWriter.writeSlice(input.hash);
       sigMsgWriter.writeUInt32(input.index);
+      sigMsgWriter.writeVarSlice(input.assetId);
       sigMsgWriter.writeInt64(values[inIndex]);
       sigMsgWriter.writeVarSlice(prevOutScripts[inIndex]);
       sigMsgWriter.writeUInt32(input.sequence);
@@ -429,6 +452,7 @@ export class Transaction {
       this.ins.forEach(txIn => {
         bufferWriter.writeSlice(txIn.hash);
         bufferWriter.writeUInt32(txIn.index);
+        bufferWriter.writeVarSlice(txIn.assetId);
       });
       hashPrevouts = bcrypto.hash256(tbuffer);
     }
@@ -488,7 +512,11 @@ export class Transaction {
   getHash(forWitness) {
     // wtxid for coinbase is always 32 bytes of 0x00
     if (forWitness && this.isCoinbase()) return new Uint8Array(32);
-    return bcrypto.hash256(this.__toBuffer(undefined, undefined, forWitness));
+
+    const tx = this;
+    tx.payloaddata = Buffer.from("","hex");
+
+    return bcrypto.hash256(tx.__toBuffer(undefined, undefined, forWitness));
   }
   getId() {
     // transaction hash's are displayed in reverse order
@@ -515,6 +543,15 @@ export class Transaction {
     if (!buffer) buffer = new Uint8Array(this.byteLength(_ALLOW_WITNESS));
     const bufferWriter = new BufferWriter(buffer, initialOffset || 0);
     bufferWriter.writeUInt32(this.version);
+    if(this.version == 10) {
+      bufferWriter.writeInt32(this.assettype);
+      bufferWriter.writeInt32(this.precision);
+      bufferWriter.writeVarSlice(this.ticker);
+      bufferWriter.writeVarSlice(this.headline);
+      bufferWriter.writeSlice(this.payload);
+      bufferWriter.writeVarSlice(this.payloaddata);
+    }
+
     const hasWitnesses = _ALLOW_WITNESS && this.hasWitnesses();
     if (hasWitnesses) {
       bufferWriter.writeUInt8(Transaction.ADVANCED_TRANSACTION_MARKER);
@@ -524,6 +561,7 @@ export class Transaction {
     this.ins.forEach(txIn => {
       bufferWriter.writeSlice(txIn.hash);
       bufferWriter.writeUInt32(txIn.index);
+      bufferWriter.writeVarSlice(txIn.assetId);
       bufferWriter.writeVarSlice(txIn.script);
       bufferWriter.writeUInt32(txIn.sequence);
     });
