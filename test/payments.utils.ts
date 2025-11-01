@@ -1,23 +1,25 @@
 import * as t from 'assert';
-import * as BNETWORKS from '../src/networks';
-import * as bscript from '../src/script';
+import * as BNETWORKS from 'bitcoinjs-lib/src/networks';
+import * as bscript from 'bitcoinjs-lib/src/script';
+import * as tools from 'uint8array-tools';
+import { isTaptree } from 'bitcoinjs-lib/src/types';
 
-function tryHex(x: Buffer | Buffer[]): string | string[] {
-  if (Buffer.isBuffer(x)) return x.toString('hex');
+function tryHex(x: Uint8Array | Uint8Array[]): string | string[] {
+  if (x instanceof Uint8Array) return tools.toHex(x);
   if (Array.isArray(x)) return x.map(tryHex) as string[];
   return x;
 }
 
-function fromHex(x: string | string[]): Buffer | Buffer[] {
-  if (typeof x === 'string') return Buffer.from(x, 'hex');
-  if (Array.isArray(x)) return x.map(fromHex) as Buffer[];
+function fromHex(x: string | string[]): Uint8Array | Uint8Array[] {
+  if (typeof x === 'string') return tools.fromHex(x);
+  if (Array.isArray(x)) return x.map(fromHex) as Uint8Array[];
   return x;
 }
-function tryASM(x: Buffer): string {
-  if (Buffer.isBuffer(x)) return bscript.toASM(x);
+function tryASM(x: Uint8Array): string {
+  if (x instanceof Uint8Array) return bscript.toASM(x);
   return x;
 }
-function asmToBuffer(x: string): Buffer {
+function asmToBuffer(x: string): Uint8Array {
   if (x === '') return Buffer.alloc(0);
   return bscript.fromASM(x);
 }
@@ -38,26 +40,73 @@ function carryOver(a: any, b: any): void {
 }
 
 function equateBase(a: any, b: any, context: string): void {
-  if ('output' in b)
+  if ('output' in b) {
+    const actualOutput = tryASM(a.output);
+    const expectedOutput = tryASM(b.output);
+    if (actualOutput !== expectedOutput) {
+      console.log(`\n=== OUTPUT MISMATCH (${context}) ===`);
+      console.log('Actual output:', actualOutput);
+      console.log('Expected output:', expectedOutput);
+      console.log('Actual raw output:', a.output);
+      console.log('Expected raw output:', b.output);
+      console.log('=====================================\n');
+    }
     t.strictEqual(
-      tryASM(a.output),
-      tryASM(b.output),
+      actualOutput,
+      expectedOutput,
       `Inequal ${context}output`,
     );
-  if ('input' in b)
-    t.strictEqual(tryASM(a.input), tryASM(b.input), `Inequal ${context}input`);
-  if ('witness' in b)
+  }
+  if ('input' in b) {
+    const actualInput = tryASM(a.input);
+    const expectedInput = tryASM(b.input);
+    if (actualInput !== expectedInput) {
+      console.log(`\n=== INPUT MISMATCH (${context}) ===`);
+      console.log('Actual input:', actualInput);
+      console.log('Expected input:', expectedInput);
+      console.log('Actual raw input:', a.input);
+      console.log('Expected raw input:', b.input);
+      console.log('===================================\n');
+    }
+    t.strictEqual(actualInput, expectedInput, `Inequal ${context}input`);
+  }
+  if ('witness' in b) {
+    const actualWitness = tryHex(a.witness);
+    const expectedWitness = tryHex(b.witness);
+    if (JSON.stringify(actualWitness) !== JSON.stringify(expectedWitness)) {
+      console.log(`\n=== WITNESS MISMATCH () ===`);
+      console.log('Actual witness:', actualWitness);
+      console.log('Expected witness:', expectedWitness);
+      console.log('Actual raw witness:', a.witness);
+      console.log('Expected raw witness:', b.witness);
+
+      // Add debugging for the input arguments
+      console.log('Debug info:');
+      console.log('- a.redeem:', a.redeem);
+      console.log('- a.hash:', a.hash);
+      console.log('- a.scriptTree:', a.scriptTree);
+      console.log('- a.witness:', a.witness);
+      console.log('=====================================\n');
+    }
     t.deepStrictEqual(
-      tryHex(a.witness),
-      tryHex(b.witness),
-      `Inequal ${context}witness`,
+      actualWitness,
+      expectedWitness,
+      `Inequal witness`,
     );
-  if ('redeemVersion' in b)
+  }
+  if ('redeemVersion' in b) {
+    if (a.redeemVersion !== b.redeemVersion) {
+      console.log(`\n=== REDEEM VERSION MISMATCH (${context}) ===`);
+      console.log('Actual redeemVersion:', a.redeemVersion);
+      console.log('Expected redeemVersion:', b.redeemVersion);
+      console.log('===========================================\n');
+    }
     t.strictEqual(
       a.redeemVersion,
       b.redeemVersion,
       `Inequal ${context}redeemVersion`,
     );
+  }
 }
 
 export function equate(a: any, b: any, args?: any): void {
@@ -88,12 +137,31 @@ export function equate(a: any, b: any, args?: any): void {
   // contextual
   if (b.signature === null) b.signature = undefined;
   if (b.signatures === null) b.signatures = undefined;
-  if ('address' in b) t.strictEqual(a.address, b.address, 'Inequal *.address');
+  if ('address' in b) {
+    if (a.address !== b.address) {
+      console.log(`\n=== ADDRESS MISMATCH ===`);
+      console.log('Actual address:', a.address);
+      console.log('Expected address:', b.address);
+      console.log('========================\n');
+    }
+    t.strictEqual(a.address, b.address, 'Inequal *.address');
+  }
   if ('name' in b) t.strictEqual(a.name, b.name, 'Inequal *.name');
   if ('hash' in b)
     t.strictEqual(tryHex(a.hash), tryHex(b.hash), 'Inequal *.hash');
-  if ('pubkey' in b)
-    t.strictEqual(tryHex(a.pubkey), tryHex(b.pubkey), 'Inequal *.pubkey');
+  if ('pubkey' in b) {
+    const actualPubkey = tryHex(a.pubkey);
+    const expectedPubkey = tryHex(b.pubkey);
+    if (actualPubkey !== expectedPubkey) {
+      console.log(`\n=== PUBKEY MISMATCH ===`);
+      console.log('Actual pubkey:', actualPubkey);
+      console.log('Expected pubkey:', expectedPubkey);
+      console.log('Actual raw pubkey:', a.pubkey);
+      console.log('Expected raw pubkey:', b.pubkey);
+      console.log('========================\n');
+    }
+    t.strictEqual(actualPubkey, expectedPubkey, 'Inequal *.pubkey');
+  }
   if ('internalPubkey' in b)
     t.strictEqual(
       tryHex(a.internalPubkey),

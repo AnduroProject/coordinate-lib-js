@@ -1,0 +1,141 @@
+
+import * as bcrypto from '../crypto.js';
+
+import { varuint } from '../bufferutils.js';
+import { Tapleaf, Taptree, isTapleaf } from '../types.js';
+import * as tools from 'uint8array-tools';
+
+export const LEAF_VERSION_TAPSCRIPT_HASH = 0xc1;
+export const MAX_TAPTREE_DEPTH = 128;
+
+interface HashLeaf {
+  hash: Uint8Array;
+}
+
+interface HashBranch {
+  hash: Uint8Array;
+  left: HashTree;
+  right: HashTree;
+}
+
+const isHashBranch = (ht: HashTree): ht is HashBranch =>
+  'left' in ht && 'right' in ht;
+
+/**
+ * Binary tree representing leaf, branch, and root node hashes of a Taptree.
+ * Each node contains a hash, and potentially left and right branch hashes.
+ * This tree is used for 2 purposes: Providing the root hash for tweaking,
+ * and calculating merkle inclusion proofs when constructing a control block.
+ */
+export type HashTree = HashLeaf | HashBranch;
+
+/**
+ * Calculates the root hash from a given control block and leaf hash.
+ * @param controlBlock - The control block buffer.
+ * @param leafHash - The leaf hash buffer.
+ * @returns The root hash buffer.
+ * @throws {TypeError} If the control block length is less than 33.
+ */
+export function rootHashFromPath(
+  controlBlock: Uint8Array,
+  leafHash: Uint8Array,
+): Uint8Array {
+  if (controlBlock.length < 33)
+    throw new TypeError(
+      `The control-block length is too small. Got ${controlBlock.length}, expected min 33.`,
+    );
+  const m = (controlBlock.length - 33) / 32;
+
+  let kj = leafHash;
+  for (let j = 0; j < m; j++) {
+    const ej = controlBlock.slice(33 + 32 * j, 65 + 32 * j);
+    if (tools.compare(kj, ej) < 0) {
+      kj = tapBranchHash(kj, ej);
+    } else {
+      kj = tapBranchHash(ej, kj);
+    }
+  }
+
+  return kj;
+}
+
+/**
+ * Build a hash tree of merkle nodes from the scripts binary tree.
+ * @param scriptTree - the tree of scripts to pairwise hash.
+ */
+export function toHashTree(scriptTree: Taptree): HashTree {
+  if (isTapleaf(scriptTree)) return { hash: tapleafHash(scriptTree) };
+
+  const hashes = [toHashTree(scriptTree[0]), toHashTree(scriptTree[1])];
+  // hashes.sort((a, b) => a.hash.compare(b.hash));
+  hashes.sort((a, b) => tools.compare(a.hash, b.hash));
+  const [left, right] = hashes;
+
+  return {
+    hash: tapBranchHash(left.hash, right.hash),
+    left,
+    right,
+  };
+}
+
+/**
+ * Given a HashTree, finds the path from a particular hash to the root.
+ * @param node - the root of the tree
+ * @param hash - the hash to search for
+ * @returns - array of sibling hashes, from leaf (inclusive) to root
+ * (exclusive) needed to prove inclusion of the specified hash. undefined if no
+ * path is found
+ */
+export function findScriptPath(
+  node: HashTree,
+  hash: Uint8Array,
+): Uint8Array[] | undefined {
+  if (isHashBranch(node)) {
+    const leftPath = findScriptPath(node.left, hash);
+    if (leftPath !== undefined) return [...leftPath, node.right.hash];
+
+    const rightPath = findScriptPath(node.right, hash);
+    if (rightPath !== undefined) return [...rightPath, node.left.hash];
+  } else if (tools.compare(node.hash, hash) === 0) {
+    return [];
+  }
+
+  return undefined;
+}
+/**
+ * Calculates the tapleaf hash for a given Tapleaf object.
+ * @param leaf - The Tapleaf object to calculate the hash for.
+ * @returns The tapleaf hash as a Buffer.
+ */
+export function tapleafHash(leaf: Tapleaf): Uint8Array {
+  const version = leaf.version || LEAF_VERSION_TAPSCRIPT_HASH;
+  return bcrypto.taggedHash(
+    'TapLeaf',
+    tools.concat([Uint8Array.from([version]), serializeScript(leaf.output)]),
+  );
+}
+
+/**
+ * Computes the TapBranch hash by concatenating two buffers and applying the 'TapBranch' tagged hash algorithm.
+ *
+ * @param a - The first buffer.
+ * @param b - The second buffer.
+ * @returns The TapBranch hash of the concatenated buffers.
+ */
+function tapBranchHash(a: Uint8Array, b: Uint8Array): Uint8Array {
+  return bcrypto.taggedHash('TapBranch', tools.concat([a, b]));
+}
+
+/**
+ * Serializes a script by encoding its length as a varint and concatenating it with the script.
+ *
+ * @param s - The script to be serialized.
+ * @returns The serialized script as a Buffer.
+ */
+function serializeScript(s: Uint8Array): Uint8Array {
+  /* global BigInt */
+  const varintLen = varuint.encodingLength(s.length);
+  const buffer = new Uint8Array(varintLen);
+  varuint.encode(s.length, buffer);
+  return tools.concat([buffer, s]);
+}

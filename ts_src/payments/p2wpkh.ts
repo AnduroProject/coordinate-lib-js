@@ -1,33 +1,51 @@
-import * as bcrypto from '../crypto';
-import { bitcoin as BITCOIN_NETWORK } from '../networks';
-import * as bscript from '../script';
-import { isPoint, typeforce as typef } from '../types';
-import { Payment, PaymentOpts } from './index';
-import * as lazy from './lazy';
+import * as bcrypto from '../crypto.js';
+import { bitcoin as BITCOIN_NETWORK } from '../networks.js';
+import * as bscript from '../script.js';
+import { BufferSchema, isPoint, NBufferSchemaFactory } from '../types.js';
+import { Payment, PaymentOpts } from './index.js';
+import * as lazy from './lazy.js';
 import { bech32 } from 'bech32';
+import * as tools from 'uint8array-tools';
+import * as v from 'valibot';
+
 const OPS = bscript.OPS;
 
-const EMPTY_BUFFER = Buffer.alloc(0);
+const EMPTY_BUFFER = new Uint8Array(0);
 
 // witness: {signature} {pubKey}
 // input: <>
 // output: OP_0 {pubKeyHash}
+/**
+ * Creates a pay-to-witness-public-key-hash (p2wpkh) payment object.
+ *
+ * @param a - The payment object containing the necessary data.
+ * @param opts - Optional payment options.
+ * @returns The p2wpkh payment object.
+ * @throws {TypeError} If the required data is missing or invalid.
+ */
 export function p2wpkh(a: Payment, opts?: PaymentOpts): Payment {
   if (!a.address && !a.hash && !a.output && !a.pubkey && !a.witness)
     throw new TypeError('Not enough data');
   opts = Object.assign({ validate: true }, opts || {});
 
-  typef(
-    {
-      address: typef.maybe(typef.String),
-      hash: typef.maybe(typef.BufferN(20)),
-      input: typef.maybe(typef.BufferN(0)),
-      network: typef.maybe(typef.Object),
-      output: typef.maybe(typef.BufferN(22)),
-      pubkey: typef.maybe(isPoint),
-      signature: typef.maybe(bscript.isCanonicalScriptSignature),
-      witness: typef.maybe(typef.arrayOf(typef.Buffer)),
-    },
+  v.parse(
+    v.partial(
+      v.object({
+        address: v.string(),
+        hash: NBufferSchemaFactory(20),
+        input: NBufferSchemaFactory(0),
+        network: v.object({}),
+        output: NBufferSchemaFactory(22),
+        pubkey: v.custom(
+          isPoint as (input: unknown) => boolean,
+          'Not a valid pubkey',
+        ),
+        signature: v.custom(
+          bscript.isCanonicalScriptSignature as (input: unknown) => boolean,
+        ),
+        witness: v.array(BufferSchema),
+      }),
+    ),
     a,
   );
 
@@ -38,7 +56,7 @@ export function p2wpkh(a: Payment, opts?: PaymentOpts): Payment {
     return {
       version,
       prefix: result.prefix,
-      data: Buffer.from(data),
+      data: Uint8Array.from(data),
     };
   });
 
@@ -82,7 +100,7 @@ export function p2wpkh(a: Payment, opts?: PaymentOpts): Payment {
 
   // extended validation
   if (opts.validate) {
-    let hash: Buffer = Buffer.from([]);
+    let hash: Uint8Array = Uint8Array.from([]);
     if (a.address) {
       if (network && network.bech32 !== _address().prefix)
         throw new TypeError('Invalid prefix or Network mismatch');
@@ -94,7 +112,7 @@ export function p2wpkh(a: Payment, opts?: PaymentOpts): Payment {
     }
 
     if (a.hash) {
-      if (hash.length > 0 && !hash.equals(a.hash))
+      if (hash.length > 0 && tools.compare(hash, a.hash) !== 0)
         throw new TypeError('Hash mismatch');
       else hash = a.hash;
     }
@@ -106,14 +124,14 @@ export function p2wpkh(a: Payment, opts?: PaymentOpts): Payment {
         a.output[1] !== 0x14
       )
         throw new TypeError('Output is invalid');
-      if (hash.length > 0 && !hash.equals(a.output.slice(2)))
+      if (hash.length > 0 && tools.compare(hash, a.output.slice(2)) !== 0)
         throw new TypeError('Hash mismatch');
       else hash = a.output.slice(2);
     }
 
     if (a.pubkey) {
       const pkh = bcrypto.hash160(a.pubkey);
-      if (hash.length > 0 && !hash.equals(pkh))
+      if (hash.length > 0 && tools.compare(hash, pkh) !== 0)
         throw new TypeError('Hash mismatch');
       else hash = pkh;
       if (!isPoint(a.pubkey) || a.pubkey.length !== 33)
@@ -127,13 +145,14 @@ export function p2wpkh(a: Payment, opts?: PaymentOpts): Payment {
       if (!isPoint(a.witness[1]) || a.witness[1].length !== 33)
         throw new TypeError('Witness has invalid pubkey');
 
-      if (a.signature && !a.signature.equals(a.witness[0]))
+      if (a.signature && tools.compare(a.signature, a.witness[0]) !== 0)
         throw new TypeError('Signature mismatch');
-      if (a.pubkey && !a.pubkey.equals(a.witness[1]))
+      // if (a.pubkey && !a.pubkey.equals(a.witness[1]))
+      if (a.pubkey && tools.compare(a.pubkey, a.witness[1]) !== 0)
         throw new TypeError('Pubkey mismatch');
 
       const pkh = bcrypto.hash160(a.witness[1]);
-      if (hash.length > 0 && !hash.equals(pkh))
+      if (hash.length > 0 && tools.compare(hash, pkh) !== 0)
         throw new TypeError('Hash mismatch');
     }
   }
