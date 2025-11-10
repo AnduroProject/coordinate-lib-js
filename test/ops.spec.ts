@@ -1,6 +1,6 @@
 import { describe, it } from 'mocha';
 import assert from 'assert';
-import { opcodes as OPS } from 'bitcoinjs-lib';
+import { opcodes as OPS } from 'coordinate-js-lib';
 
 describe('OPS Enum Tests', () => {
   it('should map OPS keys to correct numbers and reverse lookup', () => {

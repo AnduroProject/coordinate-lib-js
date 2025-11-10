@@ -2,7 +2,7 @@ import * as assert from 'assert';
 import ECPairFactory from 'ecpair';
 import * as ecc from 'tiny-secp256k1';
 import { describe, it } from 'mocha';
-import * as bitcoin from 'bitcoinjs-lib';
+import * as bitcoin from 'coordinate-js-lib';
 import { regtestUtils } from './_regtest.js';
 import { randomBytes } from 'crypto';
 
@@ -12,7 +12,7 @@ const TESTNET = bitcoin.networks.testnet;
 
 const rng = (size: number) => randomBytes(size);
 
-describe('bitcoinjs-lib (addresses)', () => {
+describe('coordinate-js-lib (addresses)', () => {
   it(
     'can generate a random address [and support the retrieval of ' +
       'transactions for that address (via 3PBP)]',

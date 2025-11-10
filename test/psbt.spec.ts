@@ -6,10 +6,10 @@ import ECPairFactory from 'ecpair';
 import { describe, it } from 'mocha';
 
 import { convertScriptTree } from './payments.utils.js';
-import { LEAF_VERSION_TAPSCRIPT } from 'bitcoinjs-lib/src/payments/bip341';
-import { tapTreeToList, tapTreeFromList } from 'bitcoinjs-lib/src/psbt/bip371';
-import type { Taptree } from 'bitcoinjs-lib/src/types';
-import { initEccLib } from 'bitcoinjs-lib';
+import { LEAF_VERSION_TAPSCRIPT } from 'coordinate-js-lib/src/payments/bip341';
+import { tapTreeToList, tapTreeFromList } from 'coordinate-js-lib/src/psbt/bip371';
+import type { Taptree } from 'coordinate-js-lib/src/types';
+import { initEccLib } from 'coordinate-js-lib';
 import * as tools from 'uint8array-tools';
 
 const rng = (size: number) => crypto.randomBytes(size);
@@ -23,7 +23,7 @@ import {
   payments,
   Signer,
   SignerAsync,
-} from 'bitcoinjs-lib';
+} from 'coordinate-js-lib';
 
 import preFixtures from './fixtures/psbt.json';
 import taprootFixtures from './fixtures/p2tr.json';

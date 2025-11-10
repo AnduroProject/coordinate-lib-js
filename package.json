@@ -1,7 +1,7 @@
 {
-  "name": "bitcoinjs-lib",
+  "name": "coordinatejs-lib",
   "version": "7.0.0-rc.0",
-  "description": "Client-side Bitcoin JavaScript library",
+  "description": "Client-side Coordinate JavaScript library",
   "type": "module",
   "main": "./src/cjs/index.cjs",
   "module": "./src/esm/index.js",
@@ -57,7 +57,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/bitcoinjs/bitcoinjs-lib.git"
+    "url": "https://github.com/anduroproject/coordinate-js-lib.git"
   },
   "files": [
     "src"
@@ -73,7 +73,7 @@
     "@jbride/bitcoinpqc": "^0.2.9"
   },
   "devDependencies": {
-    "bitcoinjs-lib": ".",
+    "coordinate-js-lib": ".",
     "@eslint/eslintrc": "^3.1.0",
     "@eslint/js": "^9.9.1",
     "@types/bs58": "^4.0.0",

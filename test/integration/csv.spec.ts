@@ -3,9 +3,9 @@ import { PsbtInput } from 'bip174';
 import ECPairFactory from 'ecpair';
 import * as ecc from 'tiny-secp256k1';
 import { before, describe, it } from 'mocha';
-import * as bitcoin from 'bitcoinjs-lib';
+import * as bitcoin from 'coordinate-js-lib';
 import { regtestUtils } from './_regtest.js';
-import { reverseBuffer } from 'bitcoinjs-lib/src/bufferutils';
+import { reverseBuffer } from 'coordinate-js-lib/src/bufferutils';
 import * as tools from 'uint8array-tools';
 
 const ECPair = ECPairFactory(ecc);
@@ -38,7 +38,7 @@ const dave = ECPair.fromWIF(
   regtest,
 );
 
-describe('bitcoinjs-lib (transactions w/ CSV)', () => {
+describe('coordinate-js-lib (transactions w/ CSV)', () => {
   // force update MTP
   before(async () => {
     await regtestUtils.mine(11);
@@ -79,7 +79,7 @@ describe('bitcoinjs-lib (transactions w/ CSV)', () => {
 
   // Ref: https://github.com/bitcoinbook/bitcoinbook/blob/f8b883dcd4e3d1b9adf40fed59b7e898fbd9241f/ch07.asciidoc#complex-script-example
 
-  // Note: bitcoinjs-lib will not offer specific support for problems with
+  // Note: coordinate-js-lib will not offer specific support for problems with
   //       advanced script usages such as below. Use at your own risk.
   function complexCsvOutput(
     _alice: KeyPair,

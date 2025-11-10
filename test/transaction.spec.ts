@@ -1,6 +1,6 @@
 import * as assert from 'assert';
 import { beforeEach, describe, it } from 'mocha';
-import { Transaction, script as bscript } from 'bitcoinjs-lib';
+import { Transaction, script as bscript } from 'coordinate-js-lib';
 import fixtures from './fixtures/transaction.json';
 import * as tools from 'uint8array-tools';
 

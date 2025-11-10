@@ -1,6 +1,6 @@
-# bitcoinjs-lib
+# coordinate-js-lib
 
-[![Github CI](https://github.com/bitcoinjs/bitcoinjs-lib/actions/workflows/main_ci.yml/badge.svg)](https://github.com/bitcoinjs/bitcoinjs-lib/actions/workflows/main_ci.yml) [![NPM](https://img.shields.io/npm/v/bitcoinjs-lib.svg)](https://www.npmjs.org/package/bitcoinjs-lib) [![code style: prettier](https://img.shields.io/badge/code_style-prettier-ff69b4.svg?style=flat-square)](https://github.com/prettier/prettier)
+[![Github CI](https://github.com/anduroproject/coordinate-js-lib/actions/workflows/main_ci.yml/badge.svg)](https://github.com/anduroproject/coordinate-js-lib/actions/workflows/main_ci.yml) [![NPM](https://img.shields.io/npm/v/coordinate-js-lib.svg)](https://www.npmjs.org/package/coordinate-js-lib) [![code style: prettier](https://img.shields.io/badge/code_style-prettier-ff69b4.svg?style=flat-square)](https://github.com/prettier/prettier)
 
 A javascript Bitcoin library for node.js and browsers. Written in TypeScript, but committing the JS files to verify.
 
@@ -8,14 +8,14 @@ Released under the terms of the [MIT LICENSE](LICENSE).
 
 ## Should I use this in production?
 If you are thinking of using the *master* branch of this library in production, **stop**.
-Master is not stable; it is our development branch, and [only tagged releases may be classified as stable](https://github.com/bitcoinjs/bitcoinjs-lib/tags).
+Master is not stable; it is our development branch, and [only tagged releases may be classified as stable](https://github.com/anduroproject/coordinate-js-lib/tags).
 
 ## Can I trust this code?
 > Don't trust. Verify.
 
 We recommend every user of this library and the [bitcoinjs](https://github.com/bitcoinjs) ecosystem audit and verify any underlying code for its validity and suitability,  including reviewing any and all of your project's dependencies.
 
-Mistakes and bugs happen, but with your help in resolving and reporting [issues](https://github.com/bitcoinjs/bitcoinjs-lib/issues), together we can produce open source software that is:
+Mistakes and bugs happen, but with your help in resolving and reporting [issues](https://github.com/anduroproject/coordinate-js-lib/issues), together we can produce open source software that is:
 
 - Easy to audit and verify,
 - Tested, with test coverage >95%,
@@ -24,7 +24,7 @@ Mistakes and bugs happen, but with your help in resolving and reporting [issues]
 - Friendly, with a strong and helpful community, ready to answer questions.
 
 ## Documentation
-Visit our [documentation](https://bitcoinjs.github.io/bitcoinjs-lib/) to explore the available resources. We're continually enhancing our documentation with additional features for an enriched experience. If you need further guidance beyond what our [examples](#examples) offer, don't hesitate to  [ask for help](https://github.com/bitcoinjs/bitcoinjs-lib/issues/new). We're here to assist you.
+Visit our [documentation](https://bitcoinjs.github.io/coordinate-js-lib/) to explore the available resources. We're continually enhancing our documentation with additional features for an enriched experience. If you need further guidance beyond what our [examples](#examples) offer, don't hesitate to  [ask for help](https://github.com/anduroproject/coordinate-js-lib/issues/new). We're here to assist you.
 
 You can find a [Web UI](https://bitcoincore.tech/apps/bitcoinjs-ui/index.html) that covers most of the `psbt.ts`, `transaction.ts` and `p2*.ts` APIs [here](https://bitcoincore.tech/apps/bitcoinjs-ui/index.html).
 
@@ -43,7 +43,7 @@ No we will not make a Discord.
 
 ## Installation
 ``` bash
-npm install bitcoinjs-lib
+npm install coordinate-js-lib
 # optionally, install a key derivation library as well
 npm install ecpair bip32
 # ecpair is the ECPair class for single keys
@@ -88,23 +88,23 @@ We are not an authoritative source of best practice, but, at the very least:
 
 
 ### Browser
-The recommended method of using `bitcoinjs-lib` in your browser is through [browserify](http://browserify.org/).
+The recommended method of using `coordinate-js-lib` in your browser is through [browserify](http://browserify.org/).
 
 If you'd like to use a different (more modern) build tool than `browserify`, you can compile just this library and its dependencies into a single JavaScript file:
 
 ```sh
-$ npm install bitcoinjs-lib browserify
-$ npx browserify --standalone bitcoin -o bitcoinjs-lib.js <<< "module.exports = require('bitcoinjs-lib');"
+$ npm install coordinate-js-lib browserify
+$ npx browserify --standalone bitcoin -o coordinate-js-lib.js <<< "module.exports = require('coordinate-js-lib');"
 ```
 
 Which you can then import as an ESM module:
 
 ```javascript
-<script type="module">import "/scripts/bitcoinjs-lib.js"</script>
+<script type="module">import "/scripts/coordinate-js-lib.js"</script>
 ````
 
 #### Using Taproot:
-When utilizing Taproot features with bitcoinjs-lib, you may need to include an additional ECC (Elliptic Curve Cryptography) library. The commonly used `tiny-secp256k1` library, however, might lead to compatibility issues due to its reliance on WASM (WebAssembly). The following alternatives may be used instead, though they may be significantly slower for high volume of signing and pubkey deriving operations.
+When utilizing Taproot features with coordinate-js-lib, you may need to include an additional ECC (Elliptic Curve Cryptography) library. The commonly used `tiny-secp256k1` library, however, might lead to compatibility issues due to its reliance on WASM (WebAssembly). The following alternatives may be used instead, though they may be significantly slower for high volume of signing and pubkey deriving operations.
 
 #### Alternatives for ECC Library:
 1. `@bitcoin-js/tiny-secp256k1-asmjs`
@@ -126,47 +126,47 @@ Otherwise, pull requests are appreciated.
 Some examples interact (via HTTPS) with a 3rd Party Blockchain Provider (3PBP).
 
 
-- [Taproot Key Spend](https://github.com/bitcoinjs/bitcoinjs-lib/blob/master/test/integration/taproot.spec.ts)
-- [Create (and broadcast via 3PBP) a taproot script-path spend Transaction - OP_CHECKSIG](https://github.com/bitcoinjs/bitcoinjs-lib/blob/master/test/integration/taproot.spec.ts)
-- [Create (and broadcast via 3PBP) a taproot script-path spend Transaction - OP_CHECKSEQUENCEVERIFY](https://github.com/bitcoinjs/bitcoinjs-lib/blob/master/test/integration/taproot.spec.ts)
-- [Create (and broadcast via 3PBP) a taproot script-path spend Transaction - OP_CHECKSIGADD (3-of-3)](https://github.com/bitcoinjs/bitcoinjs-lib/blob/master/test/integration/taproot.spec.ts)
-- [Generate a random address](https://github.com/bitcoinjs/bitcoinjs-lib/blob/master/test/integration/addresses.spec.ts)
-- [Import an address via WIF](https://github.com/bitcoinjs/bitcoinjs-lib/blob/master/test/integration/addresses.spec.ts)
-- [Generate a 2-of-3 P2SH multisig address](https://github.com/bitcoinjs/bitcoinjs-lib/blob/master/test/integration/addresses.spec.ts)
-- [Generate a SegWit address](https://github.com/bitcoinjs/bitcoinjs-lib/blob/master/test/integration/addresses.spec.ts)
-- [Generate a SegWit P2SH address](https://github.com/bitcoinjs/bitcoinjs-lib/blob/master/test/integration/addresses.spec.ts)
-- [Generate a SegWit 3-of-4 multisig address](https://github.com/bitcoinjs/bitcoinjs-lib/blob/master/test/integration/addresses.spec.ts)
-- [Generate a SegWit 2-of-2 P2SH multisig address](https://github.com/bitcoinjs/bitcoinjs-lib/blob/master/test/integration/addresses.spec.ts)
-- [Support the retrieval of transactions for an address (3rd party blockchain)](https://github.com/bitcoinjs/bitcoinjs-lib/blob/master/test/integration/addresses.spec.ts)
-- [Generate a Testnet address](https://github.com/bitcoinjs/bitcoinjs-lib/blob/master/test/integration/addresses.spec.ts)
-- [Generate a Litecoin address](https://github.com/bitcoinjs/bitcoinjs-lib/blob/master/test/integration/addresses.spec.ts)
-- [Create a 1-to-1 Transaction](https://github.com/bitcoinjs/bitcoinjs-lib/blob/master/test/integration/transactions.spec.ts)
-- [Create (and broadcast via 3PBP) a typical Transaction](https://github.com/bitcoinjs/bitcoinjs-lib/blob/master/test/integration/transactions.spec.ts)
-- [Create (and broadcast via 3PBP) a Transaction with an OP\_RETURN output](https://github.com/bitcoinjs/bitcoinjs-lib/blob/master/test/integration/transactions.spec.ts)
-- [Create (and broadcast via 3PBP) a Transaction with a 2-of-4 P2SH(multisig) input](https://github.com/bitcoinjs/bitcoinjs-lib/blob/master/test/integration/transactions.spec.ts)
-- [Create (and broadcast via 3PBP) a Transaction with a SegWit P2SH(P2WPKH) input](https://github.com/bitcoinjs/bitcoinjs-lib/blob/master/test/integration/transactions.spec.ts)
-- [Create (and broadcast via 3PBP) a Transaction with a SegWit P2WPKH input](https://github.com/bitcoinjs/bitcoinjs-lib/blob/master/test/integration/transactions.spec.ts)
-- [Create (and broadcast via 3PBP) a Transaction with a SegWit P2PK input](https://github.com/bitcoinjs/bitcoinjs-lib/blob/master/test/integration/transactions.spec.ts)
-- [Create (and broadcast via 3PBP) a Transaction with a SegWit 3-of-4 P2SH(P2WSH(multisig)) input](https://github.com/bitcoinjs/bitcoinjs-lib/blob/master/test/integration/transactions.spec.ts)
-- [Create (and broadcast via 3PBP) a Transaction and sign with an HDSigner interface (bip32)](https://github.com/bitcoinjs/bitcoinjs-lib/blob/master/test/integration/transactions.spec.ts)
-- [Import a BIP32 testnet xpriv and export to WIF](https://github.com/bitcoinjs/bitcoinjs-lib/blob/master/test/integration/bip32.spec.ts)
-- [Export a BIP32 xpriv, then import it](https://github.com/bitcoinjs/bitcoinjs-lib/blob/master/test/integration/bip32.spec.ts)
-- [Export a BIP32 xpub](https://github.com/bitcoinjs/bitcoinjs-lib/blob/master/test/integration/bip32.spec.ts)
-- [Create a BIP32, bitcoin, account 0, external address](https://github.com/bitcoinjs/bitcoinjs-lib/blob/master/test/integration/bip32.spec.ts)
-- [Create a BIP44, bitcoin, account 0, external address](https://github.com/bitcoinjs/bitcoinjs-lib/blob/master/test/integration/bip32.spec.ts)
-- [Create a BIP49, bitcoin testnet, account 0, external address](https://github.com/bitcoinjs/bitcoinjs-lib/blob/master/test/integration/bip32.spec.ts)
-- [Use BIP39 to generate BIP32 addresses](https://github.com/bitcoinjs/bitcoinjs-lib/blob/master/test/integration/bip32.spec.ts)
-- [Create (and broadcast via 3PBP) a Transaction where Alice can redeem the output after the expiry (in the past)](https://github.com/bitcoinjs/bitcoinjs-lib/blob/master/test/integration/cltv.spec.ts)
-- [Create (and broadcast via 3PBP) a Transaction where Alice can redeem the output after the expiry (in the future)](https://github.com/bitcoinjs/bitcoinjs-lib/blob/master/test/integration/cltv.spec.ts)
-- [Create (and broadcast via 3PBP) a Transaction where Alice and Bob can redeem the output at any time](https://github.com/bitcoinjs/bitcoinjs-lib/blob/master/test/integration/cltv.spec.ts)
-- [Create (but fail to broadcast via 3PBP) a Transaction where Alice attempts to redeem before the expiry](https://github.com/bitcoinjs/bitcoinjs-lib/blob/master/test/integration/cltv.spec.ts)
-- [Create (and broadcast via 3PBP) a Transaction where Alice can redeem the output after the expiry (in the future) (simple CHECKSEQUENCEVERIFY)](https://github.com/bitcoinjs/bitcoinjs-lib/blob/master/test/integration/csv.spec.ts)
-- [Create (but fail to broadcast via 3PBP) a Transaction where Alice attempts to redeem before the expiry (simple CHECKSEQUENCEVERIFY)](https://github.com/bitcoinjs/bitcoinjs-lib/blob/master/test/integration/csv.spec.ts)
-- [Create (and broadcast via 3PBP) a Transaction where Bob and Charles can send (complex CHECKSEQUENCEVERIFY)](https://github.com/bitcoinjs/bitcoinjs-lib/blob/master/test/integration/csv.spec.ts)
-- [Create (and broadcast via 3PBP) a Transaction where Alice (mediator) and Bob can send after 2 blocks (complex CHECKSEQUENCEVERIFY)](https://github.com/bitcoinjs/bitcoinjs-lib/blob/master/test/integration/csv.spec.ts)
-- [Create (and broadcast via 3PBP) a Transaction where Alice (mediator) can send after 5 blocks (complex CHECKSEQUENCEVERIFY)](https://github.com/bitcoinjs/bitcoinjs-lib/blob/master/test/integration/csv.spec.ts)
+- [Taproot Key Spend](https://github.com/anduroproject/coordinate-js-lib/blob/master/test/integration/taproot.spec.ts)
+- [Create (and broadcast via 3PBP) a taproot script-path spend Transaction - OP_CHECKSIG](https://github.com/anduroproject/coordinate-js-lib/blob/master/test/integration/taproot.spec.ts)
+- [Create (and broadcast via 3PBP) a taproot script-path spend Transaction - OP_CHECKSEQUENCEVERIFY](https://github.com/anduroproject/coordinate-js-lib/blob/master/test/integration/taproot.spec.ts)
+- [Create (and broadcast via 3PBP) a taproot script-path spend Transaction - OP_CHECKSIGADD (3-of-3)](https://github.com/anduroproject/coordinate-js-lib/blob/master/test/integration/taproot.spec.ts)
+- [Generate a random address](https://github.com/anduroproject/coordinate-js-lib/blob/master/test/integration/addresses.spec.ts)
+- [Import an address via WIF](https://github.com/anduroproject/coordinate-js-lib/blob/master/test/integration/addresses.spec.ts)
+- [Generate a 2-of-3 P2SH multisig address](https://github.com/anduroproject/coordinate-js-lib/blob/master/test/integration/addresses.spec.ts)
+- [Generate a SegWit address](https://github.com/anduroproject/coordinate-js-lib/blob/master/test/integration/addresses.spec.ts)
+- [Generate a SegWit P2SH address](https://github.com/anduroproject/coordinate-js-lib/blob/master/test/integration/addresses.spec.ts)
+- [Generate a SegWit 3-of-4 multisig address](https://github.com/anduroproject/coordinate-js-lib/blob/master/test/integration/addresses.spec.ts)
+- [Generate a SegWit 2-of-2 P2SH multisig address](https://github.com/anduroproject/coordinate-js-lib/blob/master/test/integration/addresses.spec.ts)
+- [Support the retrieval of transactions for an address (3rd party blockchain)](https://github.com/anduroproject/coordinate-js-lib/blob/master/test/integration/addresses.spec.ts)
+- [Generate a Testnet address](https://github.com/anduroproject/coordinate-js-lib/blob/master/test/integration/addresses.spec.ts)
+- [Generate a Litecoin address](https://github.com/anduroproject/coordinate-js-lib/blob/master/test/integration/addresses.spec.ts)
+- [Create a 1-to-1 Transaction](https://github.com/anduroproject/coordinate-js-lib/blob/master/test/integration/transactions.spec.ts)
+- [Create (and broadcast via 3PBP) a typical Transaction](https://github.com/anduroproject/coordinate-js-lib/blob/master/test/integration/transactions.spec.ts)
+- [Create (and broadcast via 3PBP) a Transaction with an OP\_RETURN output](https://github.com/anduroproject/coordinate-js-lib/blob/master/test/integration/transactions.spec.ts)
+- [Create (and broadcast via 3PBP) a Transaction with a 2-of-4 P2SH(multisig) input](https://github.com/anduroproject/coordinate-js-lib/blob/master/test/integration/transactions.spec.ts)
+- [Create (and broadcast via 3PBP) a Transaction with a SegWit P2SH(P2WPKH) input](https://github.com/anduroproject/coordinate-js-lib/blob/master/test/integration/transactions.spec.ts)
+- [Create (and broadcast via 3PBP) a Transaction with a SegWit P2WPKH input](https://github.com/anduroproject/coordinate-js-lib/blob/master/test/integration/transactions.spec.ts)
+- [Create (and broadcast via 3PBP) a Transaction with a SegWit P2PK input](https://github.com/anduroproject/coordinate-js-lib/blob/master/test/integration/transactions.spec.ts)
+- [Create (and broadcast via 3PBP) a Transaction with a SegWit 3-of-4 P2SH(P2WSH(multisig)) input](https://github.com/anduroproject/coordinate-js-lib/blob/master/test/integration/transactions.spec.ts)
+- [Create (and broadcast via 3PBP) a Transaction and sign with an HDSigner interface (bip32)](https://github.com/anduroproject/coordinate-js-lib/blob/master/test/integration/transactions.spec.ts)
+- [Import a BIP32 testnet xpriv and export to WIF](https://github.com/anduroproject/coordinate-js-lib/blob/master/test/integration/bip32.spec.ts)
+- [Export a BIP32 xpriv, then import it](https://github.com/anduroproject/coordinate-js-lib/blob/master/test/integration/bip32.spec.ts)
+- [Export a BIP32 xpub](https://github.com/anduroproject/coordinate-js-lib/blob/master/test/integration/bip32.spec.ts)
+- [Create a BIP32, bitcoin, account 0, external address](https://github.com/anduroproject/coordinate-js-lib/blob/master/test/integration/bip32.spec.ts)
+- [Create a BIP44, bitcoin, account 0, external address](https://github.com/anduroproject/coordinate-js-lib/blob/master/test/integration/bip32.spec.ts)
+- [Create a BIP49, bitcoin testnet, account 0, external address](https://github.com/anduroproject/coordinate-js-lib/blob/master/test/integration/bip32.spec.ts)
+- [Use BIP39 to generate BIP32 addresses](https://github.com/anduroproject/coordinate-js-lib/blob/master/test/integration/bip32.spec.ts)
+- [Create (and broadcast via 3PBP) a Transaction where Alice can redeem the output after the expiry (in the past)](https://github.com/anduroproject/coordinate-js-lib/blob/master/test/integration/cltv.spec.ts)
+- [Create (and broadcast via 3PBP) a Transaction where Alice can redeem the output after the expiry (in the future)](https://github.com/anduroproject/coordinate-js-lib/blob/master/test/integration/cltv.spec.ts)
+- [Create (and broadcast via 3PBP) a Transaction where Alice and Bob can redeem the output at any time](https://github.com/anduroproject/coordinate-js-lib/blob/master/test/integration/cltv.spec.ts)
+- [Create (but fail to broadcast via 3PBP) a Transaction where Alice attempts to redeem before the expiry](https://github.com/anduroproject/coordinate-js-lib/blob/master/test/integration/cltv.spec.ts)
+- [Create (and broadcast via 3PBP) a Transaction where Alice can redeem the output after the expiry (in the future) (simple CHECKSEQUENCEVERIFY)](https://github.com/anduroproject/coordinate-js-lib/blob/master/test/integration/csv.spec.ts)
+- [Create (but fail to broadcast via 3PBP) a Transaction where Alice attempts to redeem before the expiry (simple CHECKSEQUENCEVERIFY)](https://github.com/anduroproject/coordinate-js-lib/blob/master/test/integration/csv.spec.ts)
+- [Create (and broadcast via 3PBP) a Transaction where Bob and Charles can send (complex CHECKSEQUENCEVERIFY)](https://github.com/anduroproject/coordinate-js-lib/blob/master/test/integration/csv.spec.ts)
+- [Create (and broadcast via 3PBP) a Transaction where Alice (mediator) and Bob can send after 2 blocks (complex CHECKSEQUENCEVERIFY)](https://github.com/anduroproject/coordinate-js-lib/blob/master/test/integration/csv.spec.ts)
+- [Create (and broadcast via 3PBP) a Transaction where Alice (mediator) can send after 5 blocks (complex CHECKSEQUENCEVERIFY)](https://github.com/anduroproject/coordinate-js-lib/blob/master/test/integration/csv.spec.ts)
 
-If you have a use case that you feel could be listed here, please [ask for it](https://github.com/bitcoinjs/bitcoinjs-lib/issues/new)!
+If you have a use case that you feel could be listed here, please [ask for it](https://github.com/anduroproject/coordinate-js-lib/issues/new)!
 
 
 ## Contributing
@@ -191,7 +191,7 @@ npm run-script coverage
 - [Base58](https://github.com/cryptocoinjs/bs58) - Base58 encoding/decoding
 - [Base58 Check](https://github.com/bitcoinjs/bs58check) - Base58 check encoding/decoding
 - [Bech32](https://github.com/bitcoinjs/bech32) - A BIP173/BIP350 compliant Bech32/Bech32m encoding library
-- [coinselect](https://github.com/bitcoinjs/coinselect) - A fee-optimizing, transaction input selection module for bitcoinjs-lib.
+- [coinselect](https://github.com/bitcoinjs/coinselect) - A fee-optimizing, transaction input selection module for coordinate-js-lib.
 - [merkle-lib](https://github.com/bitcoinjs/merkle-lib) - A performance conscious library for merkle root and tree calculations.
 - [minimaldata](https://github.com/bitcoinjs/minimaldata) - A module to check bitcoin policy: SCRIPT_VERIFY_MINIMALDATA
 

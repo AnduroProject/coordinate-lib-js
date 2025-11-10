@@ -2,9 +2,9 @@ import * as assert from 'assert';
 import ECPairFactory from 'ecpair';
 import * as ecc from 'tiny-secp256k1';
 import { before, describe, it } from 'mocha';
-import * as bitcoin from 'bitcoinjs-lib';
+import * as bitcoin from 'coordinate-js-lib';
 import { regtestUtils } from './_regtest.js';
-import { reverseBuffer } from 'bitcoinjs-lib/src/bufferutils';
+import { reverseBuffer } from 'coordinate-js-lib/src/bufferutils';
 import * as tools from 'uint8array-tools';
 
 const ECPair = ECPairFactory(ecc);
@@ -28,7 +28,7 @@ const bob = ECPair.fromWIF(
   regtest,
 );
 
-describe('bitcoinjs-lib (transactions w/ CLTV)', () => {
+describe('coordinate-js-lib (transactions w/ CLTV)', () => {
   // force update MTP
   before(async () => {
     await regtestUtils.mine(11);

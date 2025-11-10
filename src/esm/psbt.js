@@ -1011,7 +1011,7 @@ export class Psbt {
 const transactionFromBuffer = buffer => new PsbtTransaction(buffer);
 /**
  * This class implements the Transaction interface from bip174 library.
- * It contains a bitcoinjs-lib Transaction object.
+ * It contains a coordinate-js-lib Transaction object.
  */
 class PsbtTransaction {
   tx;

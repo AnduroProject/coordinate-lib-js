@@ -1,10 +1,10 @@
 import * as assert from 'assert';
 import { describe, it } from 'mocha';
-import { crypto as bcrypto } from 'bitcoinjs-lib';
-import type { TaggedHashPrefix } from 'bitcoinjs-lib';
+import { crypto as bcrypto } from 'coordinate-js-lib';
+import type { TaggedHashPrefix } from 'coordinate-js-lib';
 import fixtures from './fixtures/crypto.json';
 import * as tools from 'uint8array-tools';
-import { TAGS, TAGGED_HASH_PREFIXES } from 'bitcoinjs-lib/src/crypto';
+import { TAGS, TAGGED_HASH_PREFIXES } from 'coordinate-js-lib/src/crypto';
 import { sha256 } from '@noble/hashes/sha256';
 
 describe('crypto', () => {

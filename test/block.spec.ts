@@ -1,6 +1,6 @@
 import * as assert from 'assert';
 import { beforeEach, describe, it } from 'mocha';
-import { Block } from 'bitcoinjs-lib';
+import { Block } from 'coordinate-js-lib';
 import * as tools from 'uint8array-tools';
 
 import fixtures from './fixtures/block.json';

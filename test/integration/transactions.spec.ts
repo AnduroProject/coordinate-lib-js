@@ -3,7 +3,7 @@ import BIP32Factory from 'bip32';
 import * as ecc from 'tiny-secp256k1';
 import ECPairFactory from 'ecpair';
 import { describe, it } from 'mocha';
-import * as bitcoin from 'bitcoinjs-lib';
+import * as bitcoin from 'coordinate-js-lib';
 import { regtestUtils } from './_regtest.js';
 import * as tools from 'uint8array-tools';
 import { randomBytes } from 'crypto';
@@ -22,7 +22,7 @@ const validator = (
 
 // See bottom of file for some helper functions used to make the payment objects needed.
 
-describe('bitcoinjs-lib (transactions with psbt)', () => {
+describe('coordinate-js-lib (transactions with psbt)', () => {
   it('can create a 1-to-1 Transaction', () => {
     const alice = ECPair.fromWIF(
       'L2uPYXe17xSTqbCjZvL2DsyXPCbXspvcu5mHLDYUgzdUbZGSKrSr',
@@ -170,7 +170,7 @@ describe('bitcoinjs-lib (transactions with psbt)', () => {
 
     // build and broadcast our RegTest network
     await regtestUtils.broadcast(psbt.extractTransaction().toHex());
-    // to build and broadcast to the actual Bitcoin network, see https://github.com/bitcoinjs/bitcoinjs-lib/issues/839
+    // to build and broadcast to the actual Bitcoin network, see https://github.com/anduroproject/coordinate-js-lib/issues/839
   });
 
   it('can create (and broadcast via 3PBP) a Transaction with an OP_RETURN output', async () => {
@@ -182,7 +182,7 @@ describe('bitcoinjs-lib (transactions with psbt)', () => {
       'noredeem',
     );
 
-    const data = Buffer.from('bitcoinjs-lib', 'utf8');
+    const data = Buffer.from('coordinate-js-lib', 'utf8');
     const embed = bitcoin.payments.embed({ data: [data] });
 
     const psbt = new bitcoin.Psbt({ network: regtest })

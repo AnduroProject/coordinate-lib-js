@@ -5,18 +5,18 @@ import * as ecc from 'tiny-secp256k1';
 import { describe, it } from 'mocha';
 import { PsbtInput, TapLeaf, TapLeafScript } from 'bip174';
 import { regtestUtils } from './_regtest.js';
-import * as bitcoin from 'bitcoinjs-lib';
-import { Taptree } from 'bitcoinjs-lib/src/types';
+import * as bitcoin from 'coordinate-js-lib';
+import { Taptree } from 'coordinate-js-lib/src/types';
 import {
   LEAF_VERSION_TAPSCRIPT,
   tapleafHash,
-} from 'bitcoinjs-lib/src/payments/bip341';
+} from 'coordinate-js-lib/src/payments/bip341';
 import {
   toXOnly,
   tapTreeToList,
   tapTreeFromList,
-} from 'bitcoinjs-lib/src/psbt/bip371';
-import { witnessStackToScriptWitness } from 'bitcoinjs-lib/src/psbt/psbtutils';
+} from 'coordinate-js-lib/src/psbt/bip371';
+import { witnessStackToScriptWitness } from 'coordinate-js-lib/src/psbt/psbtutils';
 import * as tools from 'uint8array-tools';
 import { sha256 } from '@noble/hashes/sha256';
 import { randomBytes } from 'crypto';
@@ -26,7 +26,7 @@ bitcoin.initEccLib(ecc);
 const bip32 = BIP32Factory(ecc);
 const rng = (size: number) => randomBytes(size);
 
-describe('bitcoinjs-lib (transaction with taproot)', () => {
+describe('coordinate-js-lib (transaction with taproot)', () => {
   it('can verify the BIP86 HD wallet vectors for taproot single sig (& sending example)', async () => {
     // Values taken from BIP86 document
     const mnemonic =

@@ -1,7 +1,7 @@
 import ECPairFactory from 'ecpair';
 import * as ecc from 'tiny-secp256k1';
 import { describe, it } from 'mocha';
-import * as bitcoin from 'bitcoinjs-lib';
+import * as bitcoin from 'coordinate-js-lib';
 import { regtestUtils } from './_regtest.js';
 import { randomBytes } from 'crypto';
 
@@ -89,7 +89,7 @@ testSuite.forEach(t => {
   const { output } = fn(base);
   if (!output) throw new TypeError('Missing output');
 
-  describe('bitcoinjs-lib (payments - ' + t.paymentName + ')', () => {
+  describe('coordinate-js-lib (payments - ' + t.paymentName + ')', () => {
     it('can broadcast as an output, and be spent as an input', async () => {
       Object.assign(depends, { prevOutScriptType: t.paymentName });
       await buildAndSign(depends, output, undefined, undefined);

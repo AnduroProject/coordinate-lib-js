@@ -30,7 +30,7 @@ __added__
 
 __fixed__
 - support for 65 byte taproot signature
-- prevent the creation of unspendable scripts in bitcoinjs-lib by implementing checks for resource limitations
+- prevent the creation of unspendable scripts in coordinate-js-lib by implementing checks for resource limitations
 - use `Buffer.from()` instead of `Buffer.of()`
 
 __changed__
@@ -348,7 +348,7 @@ __added__
 
 
 # 2.0.0
-In this release we have strived to simplify the API,  [using native types](https://github.com/bitcoinjs/bitcoinjs-lib/issues/407) wherever possible to encourage cross-compatibility with other open source community modules.
+In this release we have strived to simplify the API,  [using native types](https://github.com/anduroproject/coordinate-js-lib/issues/407) wherever possible to encourage cross-compatibility with other open source community modules.
 
 The `ecdsa` module has been removed in lieu of using a new ECDSA module (for performance and safety reasons) during the `2.x.y` major release.
 Several other cumbersome modules have been removed,  with their new independent modules recommended for usage instead for greater modularity in your projects.
@@ -358,8 +358,8 @@ Several other cumbersome modules have been removed,  with their new independent 
 Backward incompatible changes:
 
 __added__
-- export `address`, for `address` based [utility functions](https://github.com/bitcoinjs/bitcoinjs-lib/blob/master/src/address.js), most compatible, just without `Address` instantiation, see #401, #444
-- export `script`, for `script` based [utility functions](https://github.com/bitcoinjs/bitcoinjs-lib/blob/master/src/script.js), mostly compatible, just without `Script` instantiation, see #438, #444
+- export `address`, for `address` based [utility functions](https://github.com/anduroproject/coordinate-js-lib/blob/master/src/address.js), most compatible, just without `Address` instantiation, see #401, #444
+- export `script`, for `script` based [utility functions](https://github.com/anduroproject/coordinate-js-lib/blob/master/src/script.js), mostly compatible, just without `Script` instantiation, see #438, #444
 - export `ECPair`, a merged replacement for `ECKey`/`ECPubKey`, invalid types will throw via `typeforce`
 
 __changed__
@@ -397,7 +397,7 @@ __removed__
 - `HDNode.toBuffer`, use `HDNode.prototype.toBase58` instead
 - `HDNode.toHex`, use `HDNode.prototype.toBase58` instead
 
-- `networks.*.magic`, see the comment [here](https://github.com/bitcoinjs/bitcoinjs-lib/pull/432/files#r36715792)
+- `networks.*.magic`, see the comment [here](https://github.com/anduroproject/coordinate-js-lib/pull/432/files#r36715792)
 - `networks.[viacoin|viacointestnet|gamerscoin|jumbucks|zetacoin]`, import these yourself (see #383/a0e6ee7)
 - `networks.*.estimateFee`, out-dated
 

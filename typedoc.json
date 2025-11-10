@@ -1,6 +1,6 @@
 {
   "$schema": "https://typedoc.org/schema.json",
-  "name": "bitcoinjs-lib",
+  "name": "coordinate-js-lib",
   "entryPoints": ["./ts_src"],
   "out": "docs",
   "searchCategoryBoosts": {
