@@ -1,3 +1,13 @@
+# 6.1.7
+__added__
+- skip ecc library verification via DANGER_DO_NOT_VERIFY_ECCLIB flag
+
+# 6.1.6
+__fixed__
+- Fix sighash treatment when signing taproot script sign scripts using Psbt (#2104)
+- Fix error for invalid scripts in toASM (#2097)
+- Fix mutation of input to addOutput method on Psbt (#2091)
+
 # 6.1.5
 __fixed__
 - Updated bip174 dependency to fix issue with unknownKeyVals. (#1979)
@@ -20,7 +30,7 @@ __added__
 
 __fixed__
 - support for 65 byte taproot signature
-- prevent the creation of unspendable scripts in bitcoinjs-lib by implementing checks for resource limitations
+- prevent the creation of unspendable scripts in coordinate-js-lib by implementing checks for resource limitations
 - use `Buffer.from()` instead of `Buffer.of()`
 
 __changed__
@@ -327,18 +337,18 @@ __fixed__
 
 # 2.1.0
 From this release users should use the HDNode directly (compared to accessing `.keyPair`) when performing ECDSA operations such as `sign` or `verify`.
-Ideally you shoud not have to directly access `HDNode` internals for general usage,  as it can often be confusing and error prone.
+Ideally you should not have to directly access `HDNode` internals for general usage,  as it can often be confusing and error prone.
 
 __added__
 - `ECPair.prototype.getNetwork`
-- `HDNode.prototype.getNetwork`, wraps the underyling keyPair's `getNetwork` method
-- `HDNode.prototype.getPublicKeyBuffer`, wraps the underyling keyPair's `getPublicKeyBuffer` method
+- `HDNode.prototype.getNetwork`, wraps the underlying keyPair's `getNetwork` method
+- `HDNode.prototype.getPublicKeyBuffer`, wraps the underlying keyPair's `getPublicKeyBuffer` method
 - `HDNode.prototype.sign`, wraps the underlying keyPair's `sign` method
 - `HDNode.prototype.verify`, wraps the underlying keyPair's `verify` method
 
 
 # 2.0.0
-In this release we have strived to simplify the API,  [using native types](https://github.com/bitcoinjs/bitcoinjs-lib/issues/407) wherevever possible to encourage cross-compatibility with other open source community modules.
+In this release we have strived to simplify the API,  [using native types](https://github.com/anduroproject/coordinate-js-lib/issues/407) wherever possible to encourage cross-compatibility with other open source community modules.
 
 The `ecdsa` module has been removed in lieu of using a new ECDSA module (for performance and safety reasons) during the `2.x.y` major release.
 Several other cumbersome modules have been removed,  with their new independent modules recommended for usage instead for greater modularity in your projects.
@@ -348,8 +358,8 @@ Several other cumbersome modules have been removed,  with their new independent 
 Backward incompatible changes:
 
 __added__
-- export `address`, for `address` based [utility functions](https://github.com/bitcoinjs/bitcoinjs-lib/blob/master/src/address.js), most compatible, just without `Address` instantiation, see #401, #444
-- export `script`, for `script` based [utility functions](https://github.com/bitcoinjs/bitcoinjs-lib/blob/master/src/script.js), mostly compatible, just without `Script` instantiation, see #438, #444
+- export `address`, for `address` based [utility functions](https://github.com/anduroproject/coordinate-js-lib/blob/master/src/address.js), most compatible, just without `Address` instantiation, see #401, #444
+- export `script`, for `script` based [utility functions](https://github.com/anduroproject/coordinate-js-lib/blob/master/src/script.js), mostly compatible, just without `Script` instantiation, see #438, #444
 - export `ECPair`, a merged replacement for `ECKey`/`ECPubKey`, invalid types will throw via `typeforce`
 
 __changed__
@@ -387,7 +397,7 @@ __removed__
 - `HDNode.toBuffer`, use `HDNode.prototype.toBase58` instead
 - `HDNode.toHex`, use `HDNode.prototype.toBase58` instead
 
-- `networks.*.magic`, see the comment [here](https://github.com/bitcoinjs/bitcoinjs-lib/pull/432/files#r36715792)
+- `networks.*.magic`, see the comment [here](https://github.com/anduroproject/coordinate-js-lib/pull/432/files#r36715792)
 - `networks.[viacoin|viacointestnet|gamerscoin|jumbucks|zetacoin]`, import these yourself (see #383/a0e6ee7)
 - `networks.*.estimateFee`, out-dated
 

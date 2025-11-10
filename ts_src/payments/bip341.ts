@@ -1,26 +1,26 @@
-import { Buffer as NBuffer } from 'buffer';
-import { getEccLib } from '../ecc_lib';
-import * as bcrypto from '../crypto';
+import { getEccLib } from '../ecc_lib.js';
+import * as bcrypto from '../crypto.js';
 
-import { varuint } from '../bufferutils';
-import { Tapleaf, Taptree, isTapleaf } from '../types';
+import { varuint } from '../bufferutils.js';
+import { Tapleaf, Taptree, isTapleaf } from '../types.js';
+import * as tools from 'uint8array-tools';
 
 export const LEAF_VERSION_TAPSCRIPT = 0xc0;
 export const MAX_TAPTREE_DEPTH = 128;
 
 interface HashLeaf {
-  hash: Buffer;
+  hash: Uint8Array;
 }
 
 interface HashBranch {
-  hash: Buffer;
+  hash: Uint8Array;
   left: HashTree;
   right: HashTree;
 }
 
 interface TweakedPublicKey {
   parity: number;
-  x: Buffer;
+  x: Uint8Array;
 }
 
 const isHashBranch = (ht: HashTree): ht is HashBranch =>
@@ -34,10 +34,17 @@ const isHashBranch = (ht: HashTree): ht is HashBranch =>
  */
 export type HashTree = HashLeaf | HashBranch;
 
+/**
+ * Calculates the root hash from a given control block and leaf hash.
+ * @param controlBlock - The control block buffer.
+ * @param leafHash - The leaf hash buffer.
+ * @returns The root hash buffer.
+ * @throws {TypeError} If the control block length is less than 33.
+ */
 export function rootHashFromPath(
-  controlBlock: Buffer,
-  leafHash: Buffer,
-): Buffer {
+  controlBlock: Uint8Array,
+  leafHash: Uint8Array,
+): Uint8Array {
   if (controlBlock.length < 33)
     throw new TypeError(
       `The control-block length is too small. Got ${controlBlock.length}, expected min 33.`,
@@ -47,7 +54,7 @@ export function rootHashFromPath(
   let kj = leafHash;
   for (let j = 0; j < m; j++) {
     const ej = controlBlock.slice(33 + 32 * j, 65 + 32 * j);
-    if (kj.compare(ej) < 0) {
+    if (tools.compare(kj, ej) < 0) {
       kj = tapBranchHash(kj, ej);
     } else {
       kj = tapBranchHash(ej, kj);
@@ -65,7 +72,8 @@ export function toHashTree(scriptTree: Taptree): HashTree {
   if (isTapleaf(scriptTree)) return { hash: tapleafHash(scriptTree) };
 
   const hashes = [toHashTree(scriptTree[0]), toHashTree(scriptTree[1])];
-  hashes.sort((a, b) => a.hash.compare(b.hash));
+  // hashes.sort((a, b) => a.hash.compare(b.hash));
+  hashes.sort((a, b) => tools.compare(a.hash, b.hash));
   const [left, right] = hashes;
 
   return {
@@ -85,41 +93,63 @@ export function toHashTree(scriptTree: Taptree): HashTree {
  */
 export function findScriptPath(
   node: HashTree,
-  hash: Buffer,
-): Buffer[] | undefined {
+  hash: Uint8Array,
+): Uint8Array[] | undefined {
   if (isHashBranch(node)) {
     const leftPath = findScriptPath(node.left, hash);
     if (leftPath !== undefined) return [...leftPath, node.right.hash];
 
     const rightPath = findScriptPath(node.right, hash);
     if (rightPath !== undefined) return [...rightPath, node.left.hash];
-  } else if (node.hash.equals(hash)) {
+  } else if (tools.compare(node.hash, hash) === 0) {
     return [];
   }
 
   return undefined;
 }
-
-export function tapleafHash(leaf: Tapleaf): Buffer {
+/**
+ * Calculates the tapleaf hash for a given Tapleaf object.
+ * @param leaf - The Tapleaf object to calculate the hash for.
+ * @returns The tapleaf hash as a Buffer.
+ */
+export function tapleafHash(leaf: Tapleaf): Uint8Array {
   const version = leaf.version || LEAF_VERSION_TAPSCRIPT;
   return bcrypto.taggedHash(
     'TapLeaf',
-    NBuffer.concat([NBuffer.from([version]), serializeScript(leaf.output)]),
+    tools.concat([Uint8Array.from([version]), serializeScript(leaf.output)]),
   );
 }
 
-export function tapTweakHash(pubKey: Buffer, h: Buffer | undefined): Buffer {
+/**
+ * Computes the taproot tweak hash for a given public key and optional hash.
+ * If a hash is provided, the public key and hash are concatenated before computing the hash.
+ * If no hash is provided, only the public key is used to compute the hash.
+ *
+ * @param pubKey - The public key buffer.
+ * @param h - The optional hash buffer.
+ * @returns The taproot tweak hash.
+ */
+export function tapTweakHash(
+  pubKey: Uint8Array,
+  h: Uint8Array | undefined,
+): Uint8Array {
   return bcrypto.taggedHash(
     'TapTweak',
-    NBuffer.concat(h ? [pubKey, h] : [pubKey]),
+    tools.concat(h ? [pubKey, h] : [pubKey]),
   );
 }
 
+/**
+ * Tweak a public key with a given tweak hash.
+ * @param pubKey - The public key to be tweaked.
+ * @param h - The tweak hash.
+ * @returns The tweaked public key or null if the input is invalid.
+ */
 export function tweakKey(
-  pubKey: Buffer,
-  h: Buffer | undefined,
+  pubKey: Uint8Array,
+  h: Uint8Array | undefined,
 ): TweakedPublicKey | null {
-  if (!NBuffer.isBuffer(pubKey)) return null;
+  if (!(pubKey instanceof Uint8Array)) return null;
   if (pubKey.length !== 32) return null;
   if (h && h.length !== 32) return null;
 
@@ -130,17 +160,30 @@ export function tweakKey(
 
   return {
     parity: res.parity,
-    x: NBuffer.from(res.xOnlyPubkey),
+    x: Uint8Array.from(res.xOnlyPubkey),
   };
 }
-
-function tapBranchHash(a: Buffer, b: Buffer): Buffer {
-  return bcrypto.taggedHash('TapBranch', NBuffer.concat([a, b]));
+/**
+ * Computes the TapBranch hash by concatenating two buffers and applying the 'TapBranch' tagged hash algorithm.
+ *
+ * @param a - The first buffer.
+ * @param b - The second buffer.
+ * @returns The TapBranch hash of the concatenated buffers.
+ */
+function tapBranchHash(a: Uint8Array, b: Uint8Array): Uint8Array {
+  return bcrypto.taggedHash('TapBranch', tools.concat([a, b]));
 }
 
-function serializeScript(s: Buffer): Buffer {
+/**
+ * Serializes a script by encoding its length as a varint and concatenating it with the script.
+ *
+ * @param s - The script to be serialized.
+ * @returns The serialized script as a Buffer.
+ */
+function serializeScript(s: Uint8Array): Uint8Array {
+  /* global BigInt */
   const varintLen = varuint.encodingLength(s.length);
-  const buffer = NBuffer.allocUnsafe(varintLen); // better
+  const buffer = new Uint8Array(varintLen);
   varuint.encode(s.length, buffer);
-  return NBuffer.concat([buffer, s]);
+  return tools.concat([buffer, s]);
 }

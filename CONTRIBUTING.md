@@ -1,7 +1,7 @@
 
 [//]: # (This is partially derived from https://github.com/bitcoin/bitcoin/blob/6579d80572d2d33aceabbd3db45a6a9f809aa5e3/CONTRIBUTING.md)
 
-# Contributing to bitcoinjs-lib
+# Contributing to coordinate-js-lib
 Firstly in terms of structure, there is no particular concept of "bitcoinjs developers" in a sense of privileged people.
 Open source revolves around a meritocracy where contributors who help gain trust from the community.
 
@@ -14,8 +14,8 @@ We are always accepting of pull requests, but we do adhere to specific standards
 GitHub is the preferred method of communication between members.
 
 Otherwise, in order of preference:
-* bitcoinjs.slack.com
-* #bitcoinjs-dev on Freenode IRC
+* #bitcoinjs-dev:matrix.org on Matrix (A part of the #bitcoinjs-space:matrix.org "Space")
+* #bitcoinjs on libera.chat IRC
 
 
 ## Workflow
@@ -28,7 +28,7 @@ To contribute a patch, the workflow is as follows:
   1. Create topic branch
   1. Commit patches
   1. Push changes to your fork
-  1. Submit a pull request to https://github.com/bitcoinjs/bitcoinjs-lib
+  1. Submit a pull request to https://github.com/anduroproject/coordinate-js-lib
 
 [Commits should be atomic](https://en.wikipedia.org/wiki/Atomic_commit#Atomic_commit_convention) and diffs easy to read.
 
@@ -69,7 +69,7 @@ Using TypeScript is for preventing bugs while writing code, as well as automatic
 Bitcoin script payment/script templates are based on community consensus,  but typically adhere to bitcoin-core node policy by default.
 
 - `bitcoinjs.script.decompile` is consensus bound only,  it does not reject based on policy.
-- `bitcoinjs.script.compile` will try to adhere to bitcoin-core `IsStandard` policies rules. (eg. minimalpush in https://github.com/bitcoinjs/bitcoinjs-lib/pull/638)
+- `bitcoinjs.script.compile` will try to adhere to bitcoin-core `IsStandard` policies rules. (eg. minimalpush in https://github.com/anduroproject/coordinate-js-lib/pull/638)
 
 Any elliptic curve `sign` operations should adhere to `IsStandard` policies, like `LOW_S`, but `verify` should not reject them [by default].
 

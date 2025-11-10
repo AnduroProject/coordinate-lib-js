@@ -4,7 +4,7 @@ Description
 This directory contains data-driven tests for various aspects of Bitcoin.
 
 
-Bitcoinjs-lib notes
+coordinate-js-lib notes
 -------------------
 
 This directory does not contain all the Bitcoin core tests.

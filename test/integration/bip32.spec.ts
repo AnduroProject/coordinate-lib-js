@@ -3,7 +3,7 @@ import BIP32Factory from 'bip32';
 import * as ecc from 'tiny-secp256k1';
 import * as bip39 from 'bip39';
 import { describe, it } from 'mocha';
-import * as bitcoin from '../..';
+import * as bitcoin from 'coordinate-js-lib';
 
 const bip32 = BIP32Factory(ecc);
 
@@ -11,7 +11,7 @@ function getAddress(node: any, network?: any): string {
   return bitcoin.payments.p2pkh({ pubkey: node.publicKey, network }).address!;
 }
 
-describe('bitcoinjs-lib (BIP32)', () => {
+describe('coordinate-js-lib (BIP32)', () => {
   it('can import a BIP32 testnet xpriv and export to WIF', () => {
     const xpriv =
       'tprv8ZgxMBicQKsPd7Uf69XL1XwhmjHopUGep8GuEiJDZmbQz6o58LninorQAfcKZWARbtRtfnLcJ5MQ2AtHcQJCCRUcMRvmDUjyEmNUWwx8UbK';
@@ -123,7 +123,7 @@ describe('bitcoinjs-lib (BIP32)', () => {
     // var mnemonic = bip39.generateMnemonic()
     const mnemonic =
       'praise you muffin lion enable neck grocery crumble super myself license ghost';
-    assert(bip39.validateMnemonic(mnemonic));
+    assert.strictEqual(bip39.validateMnemonic(mnemonic), true);
 
     const seed = bip39.mnemonicToSeedSync(mnemonic);
     const root = bip32.fromSeed(seed);
