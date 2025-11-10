@@ -73,12 +73,14 @@ describe('coordinate-js-lib (transaction with taproot)', () => {
       Buffer.from(output),
       amount,
     );
+
     // Sent 420000 sats to taproot address
 
     const psbt = new bitcoin.Psbt({ network: regtest })
       .addInput({
         hash,
         index,
+        assetId: Buffer.alloc(0),
         witnessUtxo: { value: BigInt(amount), script: output },
         tapInternalKey: childNodeXOnlyPubkey,
       })
@@ -135,10 +137,11 @@ describe('coordinate-js-lib (transaction with taproot)', () => {
     psbt.addInput({
       hash: unspent.txId,
       index: 0,
+      assetId: Buffer.alloc(0),
       witnessUtxo: { value: BigInt(amount), script: output! },
       tapInternalKey: toXOnly(internalKey.publicKey),
     });
-    psbt.addInput({ index: 0, hash: p2pkhUnspent.txId, nonWitnessUtxo });
+    psbt.addInput({ index: 0, hash: p2pkhUnspent.txId, assetId: Buffer.alloc(0), nonWitnessUtxo });
 
     const sendInternalKey = bip32.fromSeed(rng(64), regtest);
     const sendPubKey = toXOnly(sendInternalKey.publicKey);
@@ -207,6 +210,7 @@ describe('coordinate-js-lib (transaction with taproot)', () => {
     psbt.addInput({
       hash: unspent.txId,
       index: 0,
+      assetId: Buffer.alloc(0),
       witnessUtxo: { value: BigInt(amount), script: output! },
       tapInternalKey: toXOnly(internalKey.publicKey),
       tapMerkleRoot: hash,
@@ -316,6 +320,7 @@ describe('coordinate-js-lib (transaction with taproot)', () => {
     psbt.addInput({
       hash: unspent.txId,
       index: 0,
+      assetId: Buffer.alloc(0),
       witnessUtxo: { value: BigInt(amount), script: output! },
     });
     psbt.updateInput(0, {
@@ -409,6 +414,7 @@ describe('coordinate-js-lib (transaction with taproot)', () => {
     psbt.addInput({
       hash: unspent.txId,
       index: 0,
+      assetId: Buffer.alloc(0),
       sequence: 10,
       witnessUtxo: { value: BigInt(amount), script: output! },
     });
@@ -523,6 +529,7 @@ describe('coordinate-js-lib (transaction with taproot)', () => {
     psbt.addInput({
       hash: unspent.txId,
       index: 0,
+      assetId: Buffer.alloc(0),
       witnessUtxo: { value: BigInt(amount), script: output! },
     });
     psbt.updateInput(0, {
@@ -663,6 +670,7 @@ describe('coordinate-js-lib (transaction with taproot)', () => {
       psbt.addInput({
         hash: unspent.txId,
         index: 0,
+        assetId: Buffer.alloc(0),
         witnessUtxo: { value: BigInt(amount), script: output! },
       });
 
@@ -1023,6 +1031,7 @@ class TaprootMultisigWallet {
     psbt.addInput({
       hash,
       index,
+      assetId: Buffer.alloc(0),
       witnessUtxo: { value, script: this.output },
     });
     psbt.updateInput(psbt.inputCount - 1, {

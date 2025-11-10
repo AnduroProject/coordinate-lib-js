@@ -6,8 +6,8 @@ import { toXOnly } from './psbt/bip371.js';
 export { toXOnly };
 export interface TransactionInput {
     hash: string | Uint8Array;
-    assetId: Buffer;
     index: number;
+    assetId: Buffer;
     sequence?: number;
 }
 export interface PsbtTxInput extends TransactionInput {
