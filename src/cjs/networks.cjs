@@ -12,7 +12,7 @@ exports.bitcoin = {
   /**
    * The Bech32 prefix used for Bitcoin addresses.
    */
-  bech32: 'bc',
+  bech32: 'cc',
   /**
    * The BIP32 key prefixes for Bitcoin.
    */
@@ -44,7 +44,7 @@ exports.bitcoin = {
  */
 exports.regtest = {
   messagePrefix: '\x18Bitcoin Signed Message:\n',
-  bech32: 'bcrt',
+  bech32: 'ccrt',
   bip32: {
     public: 0x043587cf,
     private: 0x04358394,
@@ -58,7 +58,7 @@ exports.regtest = {
  */
 exports.testnet = {
   messagePrefix: '\x18Bitcoin Signed Message:\n',
-  bech32: 'tb',
+  bech32: 'tc',
   bip32: {
     public: 0x043587cf,
     private: 0x04358394,
