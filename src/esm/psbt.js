@@ -769,6 +769,7 @@ export class Psbt {
       this.__CACHE,
       sighashTypes,
     );
+    console.log("sighash ", Buffer.from(hash).toString('hex'));
     const partialSig = [
       {
         pubkey: keyPair.publicKey,
@@ -1317,6 +1318,7 @@ function getHashForSig(inputIndex, input, cache, forValidate, sighashTypes) {
     input.witnessScript,
   );
   if (['p2sh-p2wsh', 'p2wsh'].indexOf(type) >= 0) {
+    console.log("unsignedTx.hashForWitnessV0 1")
     hash = unsignedTx.hashForWitnessV0(
       inputIndex,
       meaningfulScript,
@@ -1324,6 +1326,7 @@ function getHashForSig(inputIndex, input, cache, forValidate, sighashTypes) {
       sighashType,
     );
   } else if (isP2WPKH(meaningfulScript)) {
+    console.log("unsignedTx.hashForWitnessV0 2")
     // P2WPKH uses the P2PKH template for prevoutScript when signing
     const signingScript = payments.p2pkh({
       hash: meaningfulScript.slice(2),
@@ -1354,6 +1357,8 @@ function getHashForSig(inputIndex, input, cache, forValidate, sighashTypes) {
           'BIP174 compliant.\n*********************\nPROCEED WITH CAUTION!\n' +
           '*********************',
       );
+
+    console.log("unsignedTx.hashForSignature")
     hash = unsignedTx.hashForSignature(
       inputIndex,
       meaningfulScript,

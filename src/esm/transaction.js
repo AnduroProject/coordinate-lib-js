@@ -139,7 +139,7 @@ export class Transaction {
         v.nullable(v.optional(types.UInt32Schema)),
         v.nullable(v.optional(types.BufferSchema)),
       ]),
-      [hash, index, sequence, scriptSig],
+      [hash, index, assetId, sequence, scriptSig],
     );
     if (sequence === undefined || sequence === null) {
       sequence = Transaction.DEFAULT_SEQUENCE;
@@ -331,11 +331,18 @@ export class Transaction {
     let hashSequences = EMPTY_BUFFER;
     let hashOutputs = EMPTY_BUFFER;
     if (!isAnyoneCanPay) {
-      let bufferWriter = BufferWriter.withCapacity(36 * this.ins.length);
+      let totalSize = 0;
+      this.ins.forEach(txIn => {
+        const assetId = txIn.assetId || Buffer.alloc(0);;
+        const assetIdLen = assetId.length;
+        const varintLen = varuint.encodingLength(assetIdLen);
+        totalSize += 32 + 4 + varintLen + assetIdLen;
+      });
+      let bufferWriter = BufferWriter.withCapacity(totalSize);
       this.ins.forEach(txIn => {
         bufferWriter.writeSlice(txIn.hash);
         bufferWriter.writeUInt32(txIn.index);
-        bufferWriter.writeSlice(txIn.assetId);
+        bufferWriter.writeVarSlice(txIn.assetId);
       });
       hashPrevouts = sha256(bufferWriter.end());
       bufferWriter = BufferWriter.withCapacity(8 * this.ins.length);
@@ -447,8 +454,17 @@ export class Transaction {
     let hashPrevouts = ZERO;
     let hashSequence = ZERO;
     if (!(hashType & Transaction.SIGHASH_ANYONECANPAY)) {
-      tbuffer = new Uint8Array(36 * this.ins.length);
+      let totalSize = 0;
+      this.ins.forEach(txIn => {
+        const assetId = txIn.assetId || Buffer.alloc(0);;
+        const assetIdLen = assetId.length;
+        const varintLen = varuint.encodingLength(assetIdLen);
+        totalSize += 32 + 4 + varintLen + assetIdLen;
+      });
+
+      tbuffer = new Uint8Array(totalSize);
       bufferWriter = new BufferWriter(tbuffer, 0);
+
       this.ins.forEach(txIn => {
         bufferWriter.writeSlice(txIn.hash);
         bufferWriter.writeUInt32(txIn.index);
@@ -493,14 +509,15 @@ export class Transaction {
       bufferWriter.writeVarSlice(output.script);
       hashOutputs = bcrypto.hash256(tbuffer);
     }
-    tbuffer = new Uint8Array(156 + varSliceSize(prevOutScript));
-    bufferWriter = new BufferWriter(tbuffer, 0);
     const input = this.ins[inIndex];
+    tbuffer = new Uint8Array(156 + varSliceSize(input.assetId) + varSliceSize(prevOutScript));
+    bufferWriter = new BufferWriter(tbuffer, 0);
     bufferWriter.writeUInt32(this.version);
     bufferWriter.writeSlice(hashPrevouts);
     bufferWriter.writeSlice(hashSequence);
     bufferWriter.writeSlice(input.hash);
     bufferWriter.writeUInt32(input.index);
+    bufferWriter.writeVarSlice(input.assetId);
     bufferWriter.writeVarSlice(prevOutScript);
     bufferWriter.writeInt64(value);
     bufferWriter.writeUInt32(input.sequence);
