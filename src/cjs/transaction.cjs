@@ -235,7 +235,7 @@ class Transaction {
       bufferutils_js_1.varuint.encodingLength(this.ins.length) +
       bufferutils_js_1.varuint.encodingLength(this.outs.length) +
       this.ins.reduce((sum, input) => {
-        return sum + 40 + varSliceSize(input.script) + varSliceSize(input.assetId);
+        return sum + 40 + varSliceSize(input.script) + varSliceSize(input.assetId || EMPTY_BUFFER);
       }, 0) +
       this.outs.reduce((sum, output) => {
         return sum + 8 + varSliceSize(output.script);
@@ -264,6 +264,7 @@ class Transaction {
         script: txIn.script,
         sequence: txIn.sequence,
         witness: txIn.witness,
+        assetId: txIn.assetId || EMPTY_BUFFER,
       };
     });
     newTx.outs = this.outs.map(txOut => {
@@ -493,11 +494,17 @@ class Transaction {
     let hashPrevouts = ZERO;
     let hashSequence = ZERO;
     if (!(hashType & Transaction.SIGHASH_ANYONECANPAY)) {
-      tbuffer = new Uint8Array(36 * this.ins.length);
+      const prevoutsSize = this.ins.reduce(
+        (sum, txIn) =>
+          sum + 32 + 4 + varSliceSize(txIn.assetId || EMPTY_BUFFER),
+        0,
+      );
+      tbuffer = new Uint8Array(prevoutsSize);
       bufferWriter = new bufferutils_js_1.BufferWriter(tbuffer, 0);
       this.ins.forEach(txIn => {
         bufferWriter.writeSlice(txIn.hash);
         bufferWriter.writeUInt32(txIn.index);
+        bufferWriter.writeVarSlice(txIn.assetId || EMPTY_BUFFER);
       });
       hashPrevouts = bcrypto.hash256(tbuffer);
     }
@@ -538,15 +545,19 @@ class Transaction {
       bufferWriter.writeVarSlice(output.script);
       hashOutputs = bcrypto.hash256(tbuffer);
     }
-    tbuffer = new Uint8Array(156 + varSliceSize(prevOutScript));
-    bufferWriter = new bufferutils_js_1.BufferWriter(tbuffer, 0);
     const input = this.ins[inIndex];
+    tbuffer = new Uint8Array(
+      156 +
+        varSliceSize(prevOutScript) +
+        varSliceSize(input.assetId || EMPTY_BUFFER),
+    );
+    bufferWriter = new bufferutils_js_1.BufferWriter(tbuffer, 0);
     bufferWriter.writeUInt32(this.version);
     bufferWriter.writeSlice(hashPrevouts);
     bufferWriter.writeSlice(hashSequence);
     bufferWriter.writeSlice(input.hash);
     bufferWriter.writeUInt32(input.index);
-    bufferWriter.writeVarSlice(input.assetId);
+    bufferWriter.writeVarSlice(input.assetId || EMPTY_BUFFER);
     bufferWriter.writeVarSlice(prevOutScript);
     bufferWriter.writeInt64(value);
     bufferWriter.writeUInt32(input.sequence);
@@ -611,7 +622,7 @@ class Transaction {
     this.ins.forEach(txIn => {
       bufferWriter.writeSlice(txIn.hash);
       bufferWriter.writeUInt32(txIn.index);
-      bufferWriter.writeVarSlice(txIn.assetId);
+      bufferWriter.writeVarSlice(txIn.assetId || EMPTY_BUFFER);
       bufferWriter.writeVarSlice(txIn.script);
       bufferWriter.writeUInt32(txIn.sequence);
     });
